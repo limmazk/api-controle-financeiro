@@ -21,7 +21,7 @@ public class TransacaoMapper {
         );
     }
 
-    public static TransacaoResponseDTO transacaoResponseDTO(Transacao transacao){
+    public static TransacaoResponseDTO toResponseDTO(Transacao transacao){
         return new TransacaoResponseDTO(
                 transacao.getId(),
                 transacao.getDescricao(),
