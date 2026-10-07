@@ -56,4 +56,26 @@ public class TransacaoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Transacao not found."));
         return TransacaoMapper.toResponseDTO(transacao);
     }
+
+    public void delete(UUID id){
+        Transacao transacao = transacaoRepository.findById(id)
+                .orElseThrow(() -> new  ResourceNotFoundException("Transacao not found."));
+        transacaoRepository.delete(transacao);
+    }
+
+    public TransacaoResponseDTO atualizar(UUID id, TransacaoRequestDTO dto) {
+        transacaoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Transacao not found."));
+
+        Usuario usuario = usuarioRepository.findById(dto.usuarioId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario not found."));
+
+        Categoria categoria = categoriaRepository.findById(dto.categoriaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria not found."));
+
+        Transacao transacaoAtualizada = TransacaoMapper.toEntityUpdate(id, dto, usuario, categoria);
+        Transacao transacaoSalva = transacaoRepository.save(transacaoAtualizada);
+
+        return TransacaoMapper.toResponseDTO(transacaoSalva);
+    }
 }
