@@ -7,6 +7,7 @@ import br.com.limmazk.api.controle.financeiro.entity.Transacao;
 import br.com.limmazk.api.controle.financeiro.entity.Usuario;
 import br.com.limmazk.api.controle.financeiro.enums.StatusTransacao;
 import br.com.limmazk.api.controle.financeiro.enums.TipoTransacao;
+import br.com.limmazk.api.controle.financeiro.exception.ResourceNotFoundException;
 import br.com.limmazk.api.controle.financeiro.repository.CategoriaRepository;
 import br.com.limmazk.api.controle.financeiro.repository.TransacaoRepository;
 import br.com.limmazk.api.controle.financeiro.repository.UsuarioRepository;
@@ -23,7 +24,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -96,4 +99,85 @@ class TransacaoServiceTest {
         assertEquals(categoriaFake.getNome(), resultado.nomeCategoria());
         assertEquals(transacaoId, resultado.id());
     }
+
+    @Test
+    void deveLancarExcecaoQuandoUsuarioNaoEncontrado() {
+        UUID usuarioId = UUID.randomUUID();
+        UUID categoriaId = UUID.randomUUID();
+
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(
+                "Salário",
+                new BigDecimal("5000.00"),
+                TipoTransacao.ENTRADA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                usuarioId,
+                categoriaId
+        );
+
+        when(usuarioRepository.findById(dto.usuarioId())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            transacaoService.criar(dto);
+        });
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoCategoriaNaoEncontrada() {
+        UUID usuarioId = UUID.randomUUID();
+        UUID categoriaId = UUID.randomUUID();
+
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(
+                "Salário",
+                new BigDecimal("5000.00"),
+                TipoTransacao.ENTRADA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                usuarioId,
+                categoriaId
+        );
+
+        Usuario usuarioFake = new Usuario(usuarioId, "Arthur", "arthur@email.com", "123456");
+
+        when(usuarioRepository.findById(dto.usuarioId())).thenReturn(Optional.of(usuarioFake));
+        when(categoriaRepository.findById(dto.categoriaId())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            transacaoService.criar(dto);
+        });
+    }
+
+    @Test
+    void deletarTransacao() {
+        UUID id = UUID.randomUUID();
+
+        Transacao transacaoFake = new Transacao(
+                id,
+                "Salário",
+                new BigDecimal("5000.00"),
+                TipoTransacao.ENTRADA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                null,
+                null
+        );
+
+        when(transacaoRepository.findById(id)).thenReturn(Optional.of(transacaoFake));
+
+        transacaoService.delete(id);
+
+        verify(transacaoRepository).delete(transacaoFake);
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoTransacaoNaoEncontradaParaDeletar() {
+
+        UUID id = UUID.randomUUID();
+
+        when(transacaoRepository.findById(id)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> {
+            transacaoService.delete(id);
+        });
+    }
+
 }
