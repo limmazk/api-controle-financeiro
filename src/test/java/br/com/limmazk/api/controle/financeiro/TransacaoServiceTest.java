@@ -180,4 +180,58 @@ class TransacaoServiceTest {
         });
     }
 
+    @Test
+    void deveAtualizarTransacaoComSucesso() {
+        UUID id = UUID.randomUUID();
+        UUID usuarioId = UUID.randomUUID();
+        UUID categoriaId = UUID.randomUUID();
+
+        TransacaoRequestDTO dto = new TransacaoRequestDTO(
+                "Aluguel",
+                new BigDecimal("1200.00"),
+                TipoTransacao.SAIDA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                usuarioId,
+                categoriaId
+        );
+
+        Transacao transacaoExistente = new Transacao(
+                id,
+                "Salário",
+                new BigDecimal("5000.00"),
+                TipoTransacao.ENTRADA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                null,
+                null
+        );
+
+        Usuario usuarioFake = new Usuario(usuarioId, "Arthur", "arthur@email.com", "123456");
+        Categoria categoriaFake = new Categoria(categoriaId, "Moradia", usuarioFake);
+
+        Transacao transacaoSalva = new Transacao(
+                id,
+                dto.descricao(),
+                dto.valor(),
+                dto.tipo(),
+                dto.status(),
+                dto.data(),
+                usuarioFake,
+                categoriaFake
+        );
+
+        when(transacaoRepository.findById(id)).thenReturn(Optional.of(transacaoExistente));
+        when(usuarioRepository.findById(usuarioId)).thenReturn(Optional.of(usuarioFake));
+        when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.of(categoriaFake));
+        when(transacaoRepository.save(any(Transacao.class))).thenReturn(transacaoSalva);
+
+        TransacaoResponseDTO resultado = transacaoService.atualizar(id, dto);
+
+        assertEquals(dto.descricao(), resultado.descricao());
+        assertEquals(dto.valor(), resultado.valor());
+        assertEquals(id, resultado.id());
+        assertEquals(categoriaFake.getNome(), resultado.nomeCategoria());
+    }
+
 }
