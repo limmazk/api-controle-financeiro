@@ -5,6 +5,7 @@ import br.com.limmazk.api.controle.financeiro.dto.TransacaoResponseDTO;
 import br.com.limmazk.api.controle.financeiro.entity.Categoria;
 import br.com.limmazk.api.controle.financeiro.entity.Transacao;
 import br.com.limmazk.api.controle.financeiro.entity.Usuario;
+import br.com.limmazk.api.controle.financeiro.enums.TipoTransacao;
 import br.com.limmazk.api.controle.financeiro.exception.ResourceNotFoundException;
 import br.com.limmazk.api.controle.financeiro.mapper.TransacaoMapper;
 import br.com.limmazk.api.controle.financeiro.repository.CategoriaRepository;
@@ -12,6 +13,7 @@ import br.com.limmazk.api.controle.financeiro.repository.TransacaoRepository;
 import br.com.limmazk.api.controle.financeiro.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -77,6 +79,16 @@ public class TransacaoService {
         Transacao transacaoSalva = transacaoRepository.save(transacaoAtualizada);
 
         return TransacaoMapper.toResponseDTO(transacaoSalva);
+    }
+
+    public BigDecimal calcularSaldo(UUID usuarioId){
+        List<Transacao> transacoes = transacaoRepository.findByUsuarioId(usuarioId);
+
+        return transacoes.stream()
+                .map(transacao -> transacao.getTipo() == TipoTransacao.SAIDA
+                        ? transacao.getValor().negate()
+                        : transacao.getValor())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
 

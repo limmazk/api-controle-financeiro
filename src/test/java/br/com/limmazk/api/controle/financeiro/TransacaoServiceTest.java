@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -232,6 +233,39 @@ class TransacaoServiceTest {
         assertEquals(dto.valor(), resultado.valor());
         assertEquals(id, resultado.id());
         assertEquals(categoriaFake.getNome(), resultado.nomeCategoria());
+    }
+
+    @Test
+    void deveCalcularSaldoComEntradaESaida() {
+        UUID usuarioId = UUID.randomUUID();
+
+        Transacao entrada = new Transacao(
+                null,
+                "Salário",
+                new BigDecimal("6000.00"),
+                TipoTransacao.ENTRADA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                null,
+                null
+        );
+
+        Transacao saida = new Transacao(
+                null,
+                "Despesas",
+                new BigDecimal("3789.00"),
+                TipoTransacao.SAIDA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                null,
+                null
+        );
+
+        when(transacaoRepository.findByUsuarioId(usuarioId)).thenReturn(List.of(entrada, saida));
+
+        BigDecimal resultado = transacaoService.calcularSaldo(usuarioId);
+
+        assertEquals(new BigDecimal("2211.00"), resultado);
     }
 
 }
