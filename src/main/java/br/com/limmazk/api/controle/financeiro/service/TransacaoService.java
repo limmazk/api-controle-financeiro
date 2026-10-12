@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TransacaoService {
@@ -89,6 +91,17 @@ public class TransacaoService {
                         ? transacao.getValor().negate()
                         : transacao.getValor())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public Map<String, BigDecimal> gastosPorCategoria(UUID usuarioId) {
+        List<Transacao> transacoes = transacaoRepository.findByUsuarioId(usuarioId);
+
+        return transacoes.stream()
+                .filter(t -> t.getTipo() == TipoTransacao.SAIDA)
+                .collect(Collectors.groupingBy(
+                        t -> t.getCategoria().getNome(),
+                        Collectors.reducing(BigDecimal.ZERO, Transacao::getValor, BigDecimal::add)
+                ));
     }
 
 
