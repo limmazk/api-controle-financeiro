@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -266,6 +267,63 @@ class TransacaoServiceTest {
         BigDecimal resultado = transacaoService.calcularSaldo(usuarioId);
 
         assertEquals(new BigDecimal("2211.00"), resultado);
+    }
+
+    @Test
+    void deveAgruparGastosPorCategoria() {
+        UUID usuarioId = UUID.randomUUID();
+
+        Categoria alimentacao = new Categoria(UUID.randomUUID(), "Alimentação", null);
+        Categoria transporte = new Categoria(UUID.randomUUID(), "Transporte", null);
+
+        Transacao t1 = new Transacao(
+                UUID.randomUUID(),
+                "Mercado",
+                new BigDecimal("300.00"),
+                TipoTransacao.SAIDA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                null,
+                alimentacao
+        );
+        Transacao t2 = new Transacao(
+                UUID.randomUUID(),
+                "Feira",
+                new BigDecimal("200.00"),
+                TipoTransacao.SAIDA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                null,
+                alimentacao
+        );
+        Transacao t3 = new Transacao(
+                UUID.randomUUID(),
+                "Transporte",
+                new BigDecimal("150.00"),
+                TipoTransacao.SAIDA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                null,
+                transporte
+        );
+        Transacao t4 = new Transacao(
+                UUID.randomUUID(),
+                "Salário",
+                new BigDecimal("5000.00"),
+                TipoTransacao.ENTRADA,
+                StatusTransacao.PAGA,
+                LocalDate.now(),
+                null,
+                null
+        );
+
+        when(transacaoRepository.findByUsuarioId(usuarioId)).thenReturn(List.of(t1, t2, t3, t4));
+
+        Map<String, BigDecimal> resultado = transacaoService.gastosPorCategoria(usuarioId);
+
+        assertEquals(2, resultado.size());
+        assertEquals(new BigDecimal("500.00"), resultado.get("Alimentação"));
+        assertEquals(new BigDecimal("150.00"), resultado.get("Transporte"));
     }
 
 }
