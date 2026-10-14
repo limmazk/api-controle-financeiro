@@ -228,7 +228,7 @@ class TransacaoServiceTest {
         when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.of(categoriaFake));
         when(transacaoRepository.save(any(Transacao.class))).thenReturn(transacaoSalva);
 
-        TransacaoResponseDTO resultado = transacaoService.atualizar(id, dto);
+        TransacaoResponseDTO resultado = transacaoService.update(id, dto);
 
         assertEquals(dto.descricao(), resultado.descricao());
         assertEquals(dto.valor(), resultado.valor());

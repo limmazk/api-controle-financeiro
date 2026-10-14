@@ -35,7 +35,7 @@ public class TransacaoService {
         this.categoriaRepository = categoriaRepository;
     }
 
-    public TransacaoResponseDTO criar (TransacaoRequestDTO dto){
+    public TransacaoResponseDTO create (TransacaoRequestDTO dto){
         Usuario usuario = usuarioRepository.findById(dto.usuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario not found."));
         Categoria categoria = categoriaRepository.findById(dto.categoriaId())
@@ -67,7 +67,7 @@ public class TransacaoService {
         transacaoRepository.delete(transacao);
     }
 
-    public TransacaoResponseDTO atualizar(UUID id, TransacaoRequestDTO dto) {
+    public TransacaoResponseDTO update(UUID id, TransacaoRequestDTO dto) {
         transacaoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Transacao not found."));
 
