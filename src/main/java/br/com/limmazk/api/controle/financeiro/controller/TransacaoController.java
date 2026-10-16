@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -48,4 +50,15 @@ public class TransacaoController {
         transacaoService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/saldo/{usuarioId}")
+    public ResponseEntity<BigDecimal> calcularSaldo (@PathVariable UUID usuarioId){
+        return ResponseEntity.ok(transacaoService.calcularSaldo(usuarioId));
+    }
+
+    @GetMapping("/gastos-por-categoria/{usuarioId}")
+    public ResponseEntity<Map<String, BigDecimal>> gastosPorCategoria(@PathVariable UUID usuarioId){
+        return ResponseEntity.ok(transacaoService.gastosPorCategoria(usuarioId));
+    }
+
 }
