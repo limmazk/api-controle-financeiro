@@ -4,6 +4,8 @@ import br.com.limmazk.api.controle.financeiro.dto.UsuarioRequestDTO;
 import br.com.limmazk.api.controle.financeiro.dto.UsuarioResponseDTO;
 import br.com.limmazk.api.controle.financeiro.entity.Usuario;
 
+import java.util.UUID;
+
 public class UsuarioMapper {
 
     public static Usuario toEntity(UsuarioRequestDTO dto) {
@@ -21,5 +23,9 @@ public class UsuarioMapper {
                 usuario.getNome(),
                 usuario.getEmail()
         );
+    }
+
+    public static Usuario toEntityUpdate(UUID id, UsuarioRequestDTO dto) {
+        return new Usuario(id, dto.name(), dto.email(), dto.senha());
     }
 }

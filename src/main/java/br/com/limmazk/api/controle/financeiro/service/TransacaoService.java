@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -42,8 +41,8 @@ public class TransacaoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria not found."));
 
         Transacao transacao = TransacaoMapper.toEntity(dto, usuario, categoria);
-        Transacao transacaoSalva = transacaoRepository.save(transacao);
-        return TransacaoMapper.toResponseDTO(transacaoSalva);
+        Transacao transacaoSalved = transacaoRepository.save(transacao);
+        return TransacaoMapper.toResponseDTO(transacaoSalved);
     }
 
 
@@ -77,10 +76,10 @@ public class TransacaoService {
         Categoria categoria = categoriaRepository.findById(dto.categoriaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria not found."));
 
-        Transacao transacaoAtualizada = TransacaoMapper.toEntityUpdate(id, dto, usuario, categoria);
-        Transacao transacaoSalva = transacaoRepository.save(transacaoAtualizada);
+        Transacao transacaoUpdate = TransacaoMapper.toEntityUpdate(id, dto, usuario, categoria);
+        Transacao transacaoSaved = transacaoRepository.save(transacaoUpdate);
 
-        return TransacaoMapper.toResponseDTO(transacaoSalva);
+        return TransacaoMapper.toResponseDTO(transacaoSaved);
     }
 
     public BigDecimal calcularSaldo(UUID usuarioId){
