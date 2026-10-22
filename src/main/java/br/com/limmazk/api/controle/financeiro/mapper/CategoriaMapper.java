@@ -2,8 +2,12 @@ package br.com.limmazk.api.controle.financeiro.mapper;
 
 import br.com.limmazk.api.controle.financeiro.dto.CategoriaRequestDTO;
 import br.com.limmazk.api.controle.financeiro.dto.CategoriaResponseDTO;
+import br.com.limmazk.api.controle.financeiro.dto.TransacaoRequestDTO;
 import br.com.limmazk.api.controle.financeiro.entity.Categoria;
+import br.com.limmazk.api.controle.financeiro.entity.Transacao;
 import br.com.limmazk.api.controle.financeiro.entity.Usuario;
+
+import java.util.UUID;
 
 public class CategoriaMapper {
 
@@ -20,6 +24,14 @@ public class CategoriaMapper {
                 categoria.getId(),
                 categoria.getNome(),
                 categoria.getUsuario().getId()
+        );
+    }
+
+    public static Categoria toEntityUpdate(UUID id, CategoriaRequestDTO dto, Usuario usuario) {
+        return new Categoria(
+                id,
+                dto.nome(),
+                usuario
         );
     }
 }

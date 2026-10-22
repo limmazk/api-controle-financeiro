@@ -11,6 +11,7 @@ import br.com.limmazk.api.controle.financeiro.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CategoriaService {
@@ -18,7 +19,7 @@ public class CategoriaService {
     private final UsuarioRepository usuarioRepository;
     private final CategoriaRepository categoriaRepository;
 
-    public CategoriaService(UsuarioRepository usuarioRepository, CategoriaService categoriaService, CategoriaRepository categoriaRepository){
+    public CategoriaService(UsuarioRepository usuarioRepository, CategoriaRepository categoriaRepository){
         this.usuarioRepository = usuarioRepository;
         this.categoriaRepository = categoriaRepository;
     }
@@ -38,5 +39,31 @@ public class CategoriaService {
         return categorias.stream()
                 .map(CategoriaMapper::toResponseDTO)
                 .toList();
+    }
+
+    public CategoriaResponseDTO findById (UUID id){
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Id not found!"));
+
+        return CategoriaMapper.toResponseDTO(categoria);
+    }
+
+    public void delete(UUID id){
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Id not found!"));
+        categoriaRepository.delete(categoria);
+    }
+
+    public CategoriaResponseDTO update (UUID id, CategoriaRequestDTO dto){
+        categoriaRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Id not found!"));
+
+        Usuario usuario = usuarioRepository.findById(dto.usuarioId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario not found."));
+
+        Categoria categoriaUpdate = CategoriaMapper.toEntityUpdate(id, dto, usuario);
+        Categoria categoriaSalva = categoriaRepository.save(categoriaUpdate);
+
+        return CategoriaMapper.toResponseDTO(categoriaSalva);
     }
 }
